@@ -2,8 +2,12 @@ const startBlackJackButton = document.getElementById("start-blackjack")
 const blackJackDiv = document.getElementById("black-jack")
 const dealerCardsDiv = document.getElementById("host-cards")
 const playerCardsDiv = document.getElementById("player-cards")
+const dealerInformationDiv = document.getElementById("dealer-information")
+const playerInformationDiv = document.getElementById("player-information")
 const informationDiv = document.getElementById("information")
 const buttonsDiv = document.getElementById("buttons")
+const statusP = document.getElementById("status")
+const winToLossH5 = document.getElementById("win-loss") 
 
 const cardsToDrawPerHand = 2;
 let deckId; 
@@ -13,12 +17,18 @@ let dealerCardsValue = []
 let hiddenDealerCardURL;
 let dealerTotalValue;
 let playerTotalValue;
-let hidden = true; 
+let hidden; 
+let busted;
+let winToLoss = [0, 0];
 
 
 startBlackJackButton.addEventListener("click", StartBlackJack)
 
 function StartBlackJack(){
+
+    winToLossH5.innerHTML = winToLoss[0] + "-" + winToLoss[1]
+
+    busted = false;
     hidden = true; 
     playerCardsValue = [];
     dealerCardsValue = [];
@@ -26,7 +36,10 @@ function StartBlackJack(){
     buttonsDiv.innerHTML = "";
     dealerCardsDiv.innerHTML = "";
     playerCardsDiv.innerHTML = "";
-    informationDiv.innerHTML = "";
+    dealerInformationDiv.innerHTML = "";
+    playerInformationDiv.innerHTML = "";
+    statusP.innerHTML = ""
+    statusP.className = ""
     
     startBlackJackButton.innerHTML = "Start new BlackJack game"
     hitButton = document.createElement("button")
@@ -103,37 +116,45 @@ function WriteValue(){
 
     if(playerTotalValue > 21){
         for (let i = 0; i < playerCardsValue.length; i++) {
-            if(playerCardsValue[i] === 11){
-                playerCardsValue[i] === 1
+            if(playerCardsValue[i] == 11){
+                playerCardsValue[i] = 1
                 playerTotalValue = playerCardsValue.reduce(TotalValue, 0);
-            }             
+                i = playerCardsValue.length
+            }
         }
     }
     if(dealerTotalValue > 21){
         for (let i = 0; i < dealerCardsValue.length; i++) {
-            if(dealerCardsValue[i] === 11){
-                dealerCardsValue[i] === 1
+            if(dealerCardsValue[i] == 11){
+                dealerCardsValue[i] = 1
                 dealerTotalValue = dealerCardsValue.reduce(TotalValue, 0);
+                i = playerCardsValue.length
             }             
         }
     }
 
-    informationDiv.innerHTML = "";
-    pHost = document.createElement("p");
+
+
+    dealerInformationDiv.innerHTML = "";
+    playerInformationDiv.innerHTML = "";
+    pDealer = document.createElement("p");
     pPlayer = document.createElement("p");
-    informationDiv.appendChild(pHost)
-    informationDiv.appendChild(pPlayer)
+    dealerInformationDiv.appendChild(pDealer)
+    playerInformationDiv.appendChild(pPlayer)
 
 
     if(hidden){
-        pHost.innerHTML =  "Dealer hand: " + dealerCardsValue[1];
+        pDealer.innerHTML =  "Dealer hand: " + dealerCardsValue[1];
     }else{
-        pHost.innerHTML =  "Dealer hand: " + dealerTotalValue;
+        pDealer.innerHTML =  "Dealer hand: " + dealerTotalValue;
     }
 
     pPlayer.innerHTML =  "Your hand: " + playerTotalValue;
-    
 
+    if(playerTotalValue > 21 && !busted){
+        busted = true; 
+        Stand();
+    }
 }
 
 function TotalValue(previous, currentValue) {
@@ -145,16 +166,18 @@ function Hit(){
     DrawCards(1, "zpwz1562odvn", players)
 }
 
+
 function Stand(){
     hidden = false;
     hiddenCard = document.getElementById("hidden-card")
     hiddenCard.src = hiddenDealerCardURL;
+    document.getElementById("hit").disabled = true;
+    document.getElementById("stand").disabled = true;
     WriteValue()
     setTimeout(DealerMove, 1000)
 }
 
 function DealerMove(){
-    console.log(dealerTotalValue)
     if(dealerTotalValue < 17){
         DrawCards(1, "zpwz1562odvn", players, false).then(function(){
             dealerTotalValue = dealerCardsValue.reduce(TotalValue, 0);
@@ -166,21 +189,29 @@ function DealerMove(){
 }
 
 function WinnerCheck(){
-    console.log(playerTotalValue + " playerTotalValue")
-    console.log(dealerTotalValue + " dealerTotalValue")
     if (playerTotalValue > 21 && dealerTotalValue > 21) {
-        alert("Both busted! It's a tie!");
+        statusP.innerHTML = "Both busted! It's a tie!";
+        statusP.classList.add("blue")
     } else if (dealerTotalValue > 21) {
-        alert("Dealer busted! You win!");
+        statusP.innerHTML ="Dealer busted! You win!";
+        statusP.classList.add("green")
+        winToLoss[0] += 1
     } else if (playerTotalValue > 21) {
-        alert("You busted! Dealer wins!");
+        statusP.innerHTML ="You busted! Dealer wins!";
+        statusP.classList.add("red")
+        winToLoss[1] += 1
     } else if (dealerTotalValue > playerTotalValue && dealerTotalValue <= 21) {
-        alert("Dealer won");
+        statusP.innerHTML ="Dealer won";
+        statusP.classList.add("red")
+        winToLoss[1] += 1
     } else if (playerTotalValue > dealerTotalValue && playerTotalValue <= 21) {
-        alert("You won");
+        statusP.innerHTML ="You won";
+        statusP.classList.add("green")
+        winToLoss[0] += 1
     } else if (dealerTotalValue === playerTotalValue) {
-        alert("It's a tie");
+        statusP.innerHTML ="It's a tie";
+        statusP.classList.add("blue")
     } else {
-        alert("Unexpected result");
+        statusP.innerHTML ="Unexpected result";
     }
 }

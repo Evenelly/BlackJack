@@ -1,3 +1,29 @@
 img{
-    width: 20%;
+    width: 10%;
+}
+
+.information{
+    margin: 1vh 0vw 5vh 0.5vw;
+}
+
+.information p{
+    margin: 0;
+}
+
+#status{
+    width: fit-content;
+    padding: 1vh 1vw;
+    border-radius: 10px;
+}
+
+.red{
+    background-color: rgb(237, 161, 161);
+}
+
+.green{
+    background-color: rgb(183, 235, 176);
+}
+
+.blue{
+    background-color: rgb(176, 183, 235);
 }
